@@ -8,8 +8,51 @@
 import requests
 import re
 import os
+import glob
+import cv2 as cv
+import numpy as np
 from bs4 import BeautifulSoup
 
+
+def get_Xy():
+    image_save_dir = 'imgs'
+    get_nogi_imgs(image_save_dir)
+    get_exile_imgs(image_save_dir)
+    
+    img_paths = glob.glob(
+        os.path.join(image_save_dir, '**/*.jpg'))
+    y = []
+    X = []
+    for path in img_paths:
+        img = cv.imread(path)
+        face = crop_img(img)
+        if face is None:
+            continue
+        label = 0 if 'nogi' in path else 1
+        
+        y.append(label)
+        X.append(face)
+    return np.array(X), np.array(y)
+        
+            
+    
+def crop_img(img, face_size=(64, 64)):
+    face_cascade = cv.CascadeClassifier('./opencv/data/haarcascades/haarcascade_frontalface_default.xml')
+    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(img_gray, 1.3, 5)
+    if len(faces) == 0:
+        return None
+    x, y, w, h = faces[0]
+    length = max(w, h)
+    face = img[y:y+length, x:x+length]
+    resized_face = cv.resize(face , face_size)
+    return resized_face
+
+    
+    
+    
+
+    
 
 def get_all_imgs():
     image_save_dir = 'imgs'
