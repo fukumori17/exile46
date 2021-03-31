@@ -28,14 +28,15 @@ def get_Xy():
         face = crop_img(img)
         if face is None:
             continue
+        
+        croped_path = path.replace('.jpg', '_crop.jpg')
+        cv.imwrite(croped_path, face)
         label = 0 if 'nogi' in path else 1
         
         y.append(label)
         X.append(face)
     return np.array(X), np.array(y)
         
-            
-    
 def crop_img(img, face_size=(64, 64)):
     face_cascade = cv.CascadeClassifier('./opencv/data/haarcascades/haarcascade_frontalface_default.xml')
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -47,12 +48,6 @@ def crop_img(img, face_size=(64, 64)):
     face = img[y:y+length, x:x+length]
     resized_face = cv.resize(face , face_size)
     return resized_face
-
-    
-    
-    
-
-    
 
 def get_all_imgs():
     image_save_dir = 'imgs'
