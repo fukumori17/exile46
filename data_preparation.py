@@ -10,7 +10,11 @@ import re
 import os
 from bs4 import BeautifulSoup
 
-image_save_dir = 'imgs'
+
+def get_all_imgs():
+    image_save_dir = 'imgs'
+    get_nogi_imgs(image_save_dir)
+    get_exile_imgs(image_save_dir)
 
 def get_nogi_imgs(image_save_dir='imgs'):
     nogi_jpg_dir = os.path.join(image_save_dir, 'nogi')
@@ -35,4 +39,18 @@ def get_nogi_imgs(image_save_dir='imgs'):
             f.write(jpg_res.content)
             print(f'Saved {file_name}')
         
-
+def get_exile_imgs(image_save_dir='imgs'):
+    exile_jpg_dir = os.path.join(image_save_dir, 'exile')
+    os.makedirs(exile_jpg_dir, exist_ok=True)
+    exile_top_url = 'https://exile.jp/profile'
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3864.0 Safari/537.36'}
+    html = requests.get(exile_top_url, headers=headers)
+    bs = BeautifulSoup(html.content, 'html.parser')
+    elements = bs.find_all(href=re.compile('./member.php'))
+    for i, e in enumerate(elements):
+        thumb_url = e.img['src']
+        jpg_res = requests.get(thumb_url)
+        file_name = os.path.join(exile_jpg_dir, f'{i:02d}.jpg')
+        with open(file_name, 'wb') as f:
+            f.write(jpg_res.content)
+            print(f'Saved {file_name}')
